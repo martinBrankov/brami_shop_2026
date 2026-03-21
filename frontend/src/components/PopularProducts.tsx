@@ -54,7 +54,7 @@ export default function PopularProducts({
                 >
                   <div className="relative w-full aspect-square">
                     <Image
-                      src={product.imageSrc}
+                      src={product.imageSrc[0]}
                       alt={product.name}
                       fill
                       className="object-cover"
@@ -96,7 +96,7 @@ export default function PopularProducts({
               >
                 <div className="relative w-full aspect-square">
                   <Image
-                    src={product.imageSrc}
+                    src={product.imageSrc[0]}
                     alt={product.name}
                     fill
                     className="object-cover"
