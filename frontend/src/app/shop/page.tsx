@@ -5,6 +5,8 @@ import { products } from "@/data/productsData";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/contexts/CartContext";
 
 // Helper функция за премахване на HTML тагове (SSR safe)
 const stripHtml = (html: string): string => {
@@ -14,6 +16,8 @@ const stripHtml = (html: string): string => {
 export default function ShopPage() {
   const [selectedCategories, setSelectedCategories] = useState<('hair' | 'body' | 'face')[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<'brami' | 'vodica' | 'other' | null>(null);
+  const router = useRouter();
+  const { addToCart } = useCart();
 
   const categories = [
     { id: 'all' as const, name: 'Всички' },
@@ -59,6 +63,13 @@ export default function ShopPage() {
     
     return categoryMatch && brandMatch;
   });
+
+  const handleBuyNow = (product: any, e: React.MouseEvent) => {
+    // Stop link navigation and only add to cart
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product, 1);
+  };
 
   return (
     <div className="min-h-screen bg-[#f5f7fa] px-4 pt-6 pb-6">
@@ -139,9 +150,12 @@ export default function ShopPage() {
                   {product.price}
                 </div>
 
-                {/* <button className="mt-2 inline-flex items-center justify-center w-full py-2 rounded-lg bg-[#e84356] text-white text-xs font-medium shadow-sm">
-                  Добави в количката
-                </button> */}
+                <button 
+                  onClick={(e) => handleBuyNow(product, e)}
+                  className="mt-2 inline-flex items-center justify-center w-full py-2 rounded-lg bg-[#e84356] text-white text-xs font-medium shadow-sm hover:bg-[#d63748] transition-colors"
+                >
+                  Купи
+                </button>
               </div>
             </Link>
           ))}

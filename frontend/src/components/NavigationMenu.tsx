@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import { ShoppingCart } from 'lucide-react'
 import { Orientation } from '@/hooks/useOrientation'
+import { useCart } from '@/contexts/CartContext'
 
 const links = [
   { href: "/", label: "Начало" },
@@ -23,6 +25,7 @@ export default function NavigationMenu({
   isFullscreen = false,
   onToggleFullscreen 
 }: NavigationMenuProps) {
+  const { cartState } = useCart();
   const isLandscape = isMobile && orientation === 'landscape'
   
   if (isLandscape) {
@@ -75,6 +78,22 @@ export default function NavigationMenu({
               </Link>
             </li>
           ))}
+          
+          {/* Cart icon */}
+          <li>
+            <Link
+              href="/cart"
+              className="block px-2 py-3 hover:bg-purple-100 rounded transition-colors text-center relative"
+              title="Количка"
+            >
+              <ShoppingCart className="w-4 h-4 mx-auto mb-1" />
+              {cartState.cart.totalItems > 0 && (
+                <span className="absolute top-0 right-2 bg-red-500 text-white text-xs rounded-full w-3 h-3 flex items-center justify-center text-[10px]">
+                  {cartState.cart.totalItems > 9 ? '9+' : cartState.cart.totalItems}
+                </span>
+              )}
+            </Link>
+          </li>
         </ul>
       </nav>
     )
@@ -83,18 +102,44 @@ export default function NavigationMenu({
   // В портрет или на десктоп - стандартно хоризонтално меню отдолу на TopBar
   return (
     <nav className="w-full bg-transparent">
-      <ul className="flex justify-center gap-8 text-sm text-purple-900 py-3">
-        {links.map((link) => (
-          <li key={link.href}>
-            <Link
-              href={link.href}
-              className="hover:text-purple-600 transition-colors"
-            >
-              {link.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <div className="flex items-center justify-between">
+        {/* Left spacer */}
+        <div className="flex-1"></div>
+        
+        {/* Center - existing navigation */}
+        <ul className="flex justify-center gap-8 text-sm text-purple-900 py-3">
+          {links.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                className="hover:text-purple-600 transition-colors"
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        
+        {/* Right side - cart icon */}
+        <div className="flex-1 flex justify-end pr-4">
+          <ul className="flex items-center text-sm text-purple-900 py-3">
+            <li>
+              <Link
+                href="/cart"
+                className="flex items-center gap-2 hover:text-purple-600 transition-colors relative"
+                title="Количка"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {cartState.cart.totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                    {cartState.cart.totalItems > 9 ? '9+' : cartState.cart.totalItems}
+                  </span>
+                )}
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </div>
     </nav>
   )
 }

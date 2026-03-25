@@ -4,6 +4,8 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Comment } from "@/data/productsData";
+import { Product } from "@/data/productsData";
+import { useCart } from "@/contexts/CartContext";
 
 type ProductDetailsProps = {
   name: string;
@@ -13,6 +15,7 @@ type ProductDetailsProps = {
   rating: number;
   comments: Comment[];
   packaging: string;
+  product?: Product;
 };
 
 export default function ProductDetails({
@@ -23,8 +26,17 @@ export default function ProductDetails({
   rating,
   comments: review,
   packaging,
+  product,
 }: ProductDetailsProps) {
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product, quantity);
+    }
+  };
   return (
     <section className="px-4 py-6 bg-white rounded-3xl shadow-sm max-w-5xl mx-auto">
       <div className="flex flex-col gap-6">
@@ -80,7 +92,33 @@ export default function ProductDetails({
                 {price}
               </div>
 
-              <button className="w-full py-2 rounded-lg bg-[#e84356] text-white text-sm font-medium shadow-md hover:bg-[#d63845] transition-colors">
+              {/* Quantity selector */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-8 h-8 rounded-full bg-purple-200 text-purple-900 flex items-center justify-center hover:bg-purple-300 transition-colors text-sm font-medium"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-16 px-2 py-1 text-center border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  min="1"
+                />
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-8 h-8 rounded-full bg-purple-200 text-purple-900 flex items-center justify-center hover:bg-purple-300 transition-colors text-sm font-medium"
+                >
+                  +
+                </button>
+              </div>
+
+              <button 
+                onClick={handleAddToCart}
+                className="w-full py-2 rounded-lg bg-[#e84356] text-white text-sm font-medium shadow-md hover:bg-[#d63845] transition-colors"
+              >
                 Добави в количката
               </button>
 
