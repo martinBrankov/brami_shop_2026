@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { ReactNode, useState, useEffect } from 'react'
 import { useOrientation, hideAddressBar, showAddressBar } from '@/hooks/useOrientation'
@@ -17,7 +17,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const isLandscapeMobile = isMobile && orientation === 'landscape'
 
   useEffect(() => {
-    // Проверяваме дали сме във fullscreen режим
     const checkFullscreen = () => {
       const fullscreen = !!(
         document.fullscreenElement ||
@@ -26,8 +25,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         (document as any).msFullscreenElement
       )
       setIsFullscreen(fullscreen)
-      
-      // Запомняме ако потребителят е влязъл във fullscreen
+
       if (fullscreen && !userEnteredFullscreen) {
         setUserEnteredFullscreen(true)
       }
@@ -47,19 +45,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, [userEnteredFullscreen])
 
   useEffect(() => {
-    // Автоматично влизане във fullscreen само в лендскейп и само ако потребителят не е влизал вече
     if (isLandscapeMobile && !userEnteredFullscreen) {
       const timer = setTimeout(() => {
         hideAddressBar()
       }, 500)
-      
+
       return () => clearTimeout(timer)
     }
-    // Не излизаме автоматично от fullscreen - оставаме в режима докато потребителят не реши
   }, [isLandscapeMobile, userEnteredFullscreen])
 
   useEffect(() => {
-    // Добавяне на event listeners за изход от fullscreen
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isFullscreen) {
         showAddressBar()
@@ -95,26 +90,36 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <div id="root">
-      {/* горна лента - винаги видима */}
-      <TopBar />
+    <div id="root" className="min-h-screen bg-[#f5f7fa]">
+      {!isLandscapeMobile && (
+        <div className="fixed inset-x-0 top-0 z-40">
+          <div className="page-shell">
+            <div className="surface-card overflow-hidden rounded-t-none rounded-b-xl border-t-0">
+              <TopBar />
+              <NavigationMenu
+                orientation={orientation}
+                isMobile={isMobile}
+                isFullscreen={isFullscreen}
+                onToggleFullscreen={toggleFullscreen}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* менюто „виси" над съдържанието */}
-      <div className="relative z-20 -mb-8">
-        <NavigationMenu 
-          orientation={orientation} 
-          isMobile={isMobile} 
+      {isLandscapeMobile && (
+        <NavigationMenu
+          orientation={orientation}
+          isMobile={isMobile}
           isFullscreen={isFullscreen}
           onToggleFullscreen={toggleFullscreen}
         />
-      </div>
+      )}
 
-      {/* отстъп, за да не влиза съдържанието под менюто */}
-      <main className={`pt-8 pb-16 ${isLandscapeMobile ? 'pt-2' : ''} ${isLandscapeMobile ? 'pr-24' : ''}`}>
+      <main className={`pb-16 pt-32 ${isLandscapeMobile ? 'pr-24 pt-4' : ''}`}>
         {children}
       </main>
-      
-      {/* долна лента */}
+
       {!isLandscapeMobile && <BottomBar />}
     </div>
   )

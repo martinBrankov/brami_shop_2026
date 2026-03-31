@@ -1,8 +1,8 @@
 "use client";
 
 // app/shop/[id]/page.tsx
-import ProductDetails from "@/components/ProductDetails";
-import ProductNotFound from "@/components/ProductNotFound";
+import ProductDetails from "@/components/productsDetiles/ProductDetails";
+import ProductNotFound from "@/components/productsNotFound/ProductNotFound";
 import { products } from "@/data/productsData";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
@@ -11,15 +11,17 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   if (!product) return <ProductNotFound />;
 
   return (
-    <ProductDetails
-      name={product.name}
-      imageSrc={product.imageSrc}
-      price={product.price}
-      description={product.description}
-      comments={product.comments}
-      rating={product.rating}
-      packaging={product.packaging}
-      product={product}
-    />
+    <div className="min-h-screen bg-[#f5f7fa] pt-6 pb-6">
+      <ProductDetails
+        name={product.name}
+        imageSrc={product.imageSrc}
+        price={product.price}
+        description={product.description}
+        comments={product.comments}
+        rating={product.rating}
+        packaging={product.packaging}
+        product={product}
+      />
+    </div>
   );
 }

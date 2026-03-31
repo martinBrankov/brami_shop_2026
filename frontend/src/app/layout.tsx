@@ -1,6 +1,5 @@
 import './globals.css'
 import AppLayout from '@/components/AppLayout'
-import OrientationWrapper from '@/components/OrientationWrapper'
 import { CartProvider } from '@/contexts/CartContext'
 
 export const metadata = {
@@ -18,13 +17,11 @@ export default function RootLayout({
       <head>
         <script src="/scripts/device-font-size.js" />
       </head>
-      <body className="font-sans antialiased">
+      <body className="bg-[#f5f7fa] font-sans antialiased">
         <CartProvider>
-          <OrientationWrapper showLandscapePrompt={false}>
-            <AppLayout>
-              {children}
-            </AppLayout>
-          </OrientationWrapper>
+          <AppLayout>
+            {children}
+          </AppLayout>
         </CartProvider>
       </body>
     </html>

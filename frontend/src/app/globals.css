@@ -1,3 +1,64 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html,
+body {
+  background-color: #f5f7fa;
+}
+
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+@layer components {
+  .page-shell {
+    @apply mx-auto w-full max-w-5xl px-4;
+  }
+
+  .surface-card,
+  .surface-card-tight {
+    @apply rounded-2xl border border-purple-100 shadow-sm backdrop-blur-xl;
+    background-color: rgb(255 255 255 / 0.8);
+  }
+
+  .surface-card-tight {
+    @apply px-4 py-4;
+  }
+
+  .app-button {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors;
+  }
+
+  .app-button-primary {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors bg-[#e84356] text-white hover:bg-[#d63748];
+  }
+
+  .app-button-soft {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors bg-purple-200 text-purple-700 hover:bg-purple-300;
+  }
+
+  .app-button-neutral {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300;
+  }
+
+  .app-button-danger {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium uppercase tracking-[0.12em] transition-colors bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700;
+  }
+
+  .app-button-text {
+    @apply inline-flex items-center justify-center text-[12px] font-medium uppercase tracking-[0.12em] text-purple-700 transition-colors hover:text-purple-900;
+  }
+
+  .app-icon-button {
+    @apply inline-flex items-center justify-center rounded-full bg-purple-200 text-purple-700 transition-colors hover:bg-purple-300;
+  }
+}
+
+@supports ((-webkit-backdrop-filter: blur(0)) or (backdrop-filter: blur(0))) {
+  .surface-card,
+  .surface-card-tight {
+    background-color: rgb(255 255 255 / 0.65);
+  }
+}

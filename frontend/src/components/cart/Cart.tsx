@@ -78,7 +78,7 @@ export default function Cart({
         <h2 className="text-xl font-semibold text-purple-900">Преглед на количката</h2>
         <Link
           href="/shop"
-          className="px-6 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors"
+          className="app-button-soft"
         >
           Продължи с пазаруването
         </Link>
@@ -89,7 +89,7 @@ export default function Cart({
           <p className="text-purple-700/80">Количката е празна</p>
           <Link 
             href="/shop" 
-            className="inline-block mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            className="app-button-soft mt-4"
           >
             Към магазина
           </Link>
@@ -98,7 +98,7 @@ export default function Cart({
         <>
           <div className="space-y-4">
             {cartState.cart.items.map((item) => (
-              <div key={item.id} className="flex gap-4 p-4 bg-white border border-purple-200 rounded-lg">
+              <div key={item.id} className="flex gap-4 p-4 bg-white/80 border border-purple-100 rounded-xl shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/65">
                 <div className="relative w-20 h-20 flex-shrink-0">
                   <Link 
                     href={`/shop/${item.product.id}`}
@@ -128,7 +128,7 @@ export default function Cart({
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                      className="w-6 h-6 rounded bg-purple-200 text-purple-900 flex items-center justify-center hover:bg-purple-300 transition-colors text-xs"
+                      className="app-icon-button h-6 w-6 text-xs"
                     >
                       -
                     </button>
@@ -143,14 +143,14 @@ export default function Cart({
                     
                     <button
                       onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                      className="w-6 h-6 rounded bg-purple-200 text-purple-900 flex items-center justify-center hover:bg-purple-300 transition-colors text-xs"
+                      className="app-icon-button h-6 w-6 text-xs"
                     >
                       +
                     </button>
                     
                     <button
                       onClick={() => removeFromCart(item.product.id)}
-                      className="ml-auto text-red-500 hover:text-red-700 transition-colors text-xs"
+                      className="app-button-danger ml-auto"
                     >
                       Премахни
                     </button>
@@ -167,7 +167,7 @@ export default function Cart({
               </span>
               <button
                 onClick={() => goToStep(2)}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="app-button-soft"
               >
                 Продължи към доставка
               </button>
@@ -256,7 +256,7 @@ export default function Cart({
           <h2 className="text-xl font-semibold text-purple-900">Данни за доставка</h2>
           <button
             onClick={() => goToStep(1)}
-            className="text-purple-600 hover:text-purple-700 transition-colors text-sm"
+            className="app-button-text"
           >
             ← Обратно към количката
           </button>
@@ -372,7 +372,7 @@ export default function Cart({
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="app-button-soft disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? 'Обработка...' : 'Завърши поръчката'}
               </button>
@@ -424,13 +424,13 @@ export default function Cart({
             <>
               <button
                 onClick={() => goToStep(1)}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="app-button-soft"
               >
                 Нова поръчка
               </button>
               <Link
                 href="/shop"
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="app-button-neutral"
               >
                 Продължи пазаруването
               </Link>
@@ -439,14 +439,14 @@ export default function Cart({
             <>
               <button
                 onClick={() => goToStep(2)}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="app-button-soft"
               >
                 Опитай отново
               </button>
               
               <button
                 onClick={() => goToStep(1)}
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="app-button-neutral"
               >
                 Обратно към количката
               </button>
@@ -458,7 +458,7 @@ export default function Cart({
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-sm">
+    <div className="surface-card mx-auto w-full p-6">
       {/* Progress indicator */}
       <div className="flex items-center justify-center mb-8">
         <div className="flex items-center space-x-4">
