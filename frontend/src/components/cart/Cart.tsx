@@ -21,6 +21,8 @@ type CheckoutFormData = {
   acceptDeliveryTerms: boolean;
 };
 
+type CheckoutFormErrors = Partial<Record<keyof CheckoutFormData, string>>;
+
 interface CartProps {
   initialUserState?: UserState;
 }
@@ -52,6 +54,7 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
     message: string;
     orderNumber?: string;
   } | null>(null);
+  const [formErrors, setFormErrors] = useState<CheckoutFormErrors>({});
   const [didRestoreDraft, setDidRestoreDraft] = useState(false);
   const productsTotal = parseFloat(cartState.cart.totalPrice.replace("€", "")) || 0;
   const totalWithCourier = `€${(productsTotal + COURIER_SERVICE_PRICE).toFixed(2)}`;
@@ -93,6 +96,38 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
     window.sessionStorage.removeItem(CHECKOUT_FORM_STORAGE_KEY);
   };
 
+  const scrollToFirstInvalidField = (errors: CheckoutFormErrors) => {
+    const fieldOrder: (keyof CheckoutFormData)[] = [
+      "firstName",
+      "lastName",
+      "email",
+      "phone",
+      "address",
+      "city",
+      "postalCode",
+      "paymentMethod",
+      "acceptGdpr",
+      "acceptDeliveryTerms",
+    ];
+
+    const firstInvalidField = fieldOrder.find((field) => errors[field]);
+    if (!firstInvalidField) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(`[data-field="${firstInvalidField}"]`);
+      if (!target) {
+        return;
+      }
+
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement) {
+        target.focus();
+      }
+    });
+  };
+
   const processCheckout = async (userData: CheckoutFormData) => {
     setIsProcessing(true);
 
@@ -132,7 +167,7 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
     }
   };
 
-  const CartReview = () => (
+  const renderCartReview = () => (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-purple-900">Преглед на количката</h2>
@@ -230,48 +265,33 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
     </div>
   );
 
-  const UserInformation = () => {
+  const renderUserInformation = () => {
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
 
       const { firstName, lastName, email, phone, address, city, postalCode, acceptGdpr, acceptDeliveryTerms } = formData;
+      const nextErrors: CheckoutFormErrors = {};
 
-      if (!firstName || !lastName || !email || !phone || !address || !city || !postalCode) {
-        setOrderResult({
-          success: false,
-          message: "Моля, попълнете всички задължителни полета.",
-        });
-        goToStep(3);
-        return;
-      }
+      if (!firstName) nextErrors.firstName = "Полето е задължително.";
+      if (!lastName) nextErrors.lastName = "Полето е задължително.";
+      if (!email) nextErrors.email = "Полето е задължително.";
+      if (!phone) nextErrors.phone = "Полето е задължително.";
+      if (!address) nextErrors.address = "Полето е задължително.";
+      if (!city) nextErrors.city = "Полето е задължително.";
+      if (!postalCode) nextErrors.postalCode = "Полето е задължително.";
+      if (!formData.paymentMethod) nextErrors.paymentMethod = "Изберете начин на плащане.";
 
-      if (!acceptGdpr || !acceptDeliveryTerms) {
-        setOrderResult({
-          success: false,
-          message: "Моля, потвърдете съгласието си с GDPR и условията за доставка.",
-        });
-        goToStep(3);
-        return;
-      }
+      if (!acceptGdpr) nextErrors.acceptGdpr = "Необходимо е съгласие с GDPR.";
+      if (!acceptDeliveryTerms) nextErrors.acceptDeliveryTerms = "Необходимо е съгласие с условията за доставка.";
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        setOrderResult({
-          success: false,
-          message: "Моля, въведете валиден имейл адрес.",
-        });
-        goToStep(3);
-        return;
+      if (email && !emailRegex.test(email)) {
+        nextErrors.email = "Моля, въведете валиден имейл адрес.";
       }
 
       const phoneRegex = /^[+]?[\d\s\-()]{7,}$/;
-      if (!phoneRegex.test(phone)) {
-        setOrderResult({
-          success: false,
-          message: "Моля, въведете валиден телефонен номер (минимум 7 цифри).",
-        });
-        goToStep(3);
-        return;
+      if (phone && !phoneRegex.test(phone)) {
+        nextErrors.phone = "Моля, въведете валиден телефонен номер.";
       }
 
       if (cartState.cart.items.length === 0) {
@@ -283,6 +303,13 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
         return;
       }
 
+      if (Object.keys(nextErrors).length > 0) {
+        setFormErrors(nextErrors);
+        scrollToFirstInvalidField(nextErrors);
+        return;
+      }
+
+      setFormErrors({});
       processCheckout(formData);
     };
 
@@ -300,109 +327,155 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
             <div>
               <label className="mb-1 block text-sm font-medium text-purple-700">Име</label>
               <input
+                data-field="firstName"
                 type="text"
-                required
-                autoComplete="given-name"
+                name="givenName"
+                autoComplete="shipping given-name"
                 value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                className="w-full rounded-lg border border-purple-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={(e) => {
+                  setFormData({ ...formData, firstName: e.target.value });
+                  setFormErrors((prev) => ({ ...prev, firstName: undefined }));
+                }}
+                className={`w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${formErrors.firstName ? "border-red-400 bg-red-50 focus:ring-red-300" : "border-purple-200 focus:ring-purple-500"}`}
               />
+              {formErrors.firstName && <p className="mt-1 text-xs text-red-600">{formErrors.firstName}</p>}
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium text-purple-700">Фамилия</label>
               <input
+                data-field="lastName"
                 type="text"
-                required
-                autoComplete="family-name"
+                name="familyName"
+                autoComplete="shipping family-name"
                 value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                className="w-full rounded-lg border border-purple-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={(e) => {
+                  setFormData({ ...formData, lastName: e.target.value });
+                  setFormErrors((prev) => ({ ...prev, lastName: undefined }));
+                }}
+                className={`w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${formErrors.lastName ? "border-red-400 bg-red-50 focus:ring-red-300" : "border-purple-200 focus:ring-purple-500"}`}
               />
+              {formErrors.lastName && <p className="mt-1 text-xs text-red-600">{formErrors.lastName}</p>}
             </div>
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-purple-700">Имейл</label>
             <input
+              data-field="email"
               type="email"
-              required
-              autoComplete="email"
+              name="email"
+              autoComplete="shipping email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full rounded-lg border border-purple-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value });
+                setFormErrors((prev) => ({ ...prev, email: undefined }));
+              }}
+              className={`w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${formErrors.email ? "border-red-400 bg-red-50 focus:ring-red-300" : "border-purple-200 focus:ring-purple-500"}`}
             />
+            {formErrors.email && <p className="mt-1 text-xs text-red-600">{formErrors.email}</p>}
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-purple-700">Телефон</label>
             <input
+              data-field="phone"
               type="tel"
-              required
-              autoComplete="tel"
+              name="tel"
+              autoComplete="shipping tel"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full rounded-lg border border-purple-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onChange={(e) => {
+                setFormData({ ...formData, phone: e.target.value });
+                setFormErrors((prev) => ({ ...prev, phone: undefined }));
+              }}
+              className={`w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${formErrors.phone ? "border-red-400 bg-red-50 focus:ring-red-300" : "border-purple-200 focus:ring-purple-500"}`}
             />
+            {formErrors.phone && <p className="mt-1 text-xs text-red-600">{formErrors.phone}</p>}
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-purple-700">Адрес</label>
             <input
+              data-field="address"
               type="text"
-              required
-              autoComplete="street-address"
+              name="streetAddress"
+              autoComplete="shipping street-address"
               value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full rounded-lg border border-purple-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onChange={(e) => {
+                setFormData({ ...formData, address: e.target.value });
+                setFormErrors((prev) => ({ ...prev, address: undefined }));
+              }}
+              className={`w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${formErrors.address ? "border-red-400 bg-red-50 focus:ring-red-300" : "border-purple-200 focus:ring-purple-500"}`}
             />
+            {formErrors.address && <p className="mt-1 text-xs text-red-600">{formErrors.address}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-purple-700">Град</label>
               <input
+                data-field="city"
                 type="text"
-                required
-                autoComplete="address-level2"
+                name="addressLevel2"
+                autoComplete="shipping address-level2"
                 value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full rounded-lg border border-purple-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={(e) => {
+                  setFormData({ ...formData, city: e.target.value });
+                  setFormErrors((prev) => ({ ...prev, city: undefined }));
+                }}
+                className={`w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${formErrors.city ? "border-red-400 bg-red-50 focus:ring-red-300" : "border-purple-200 focus:ring-purple-500"}`}
               />
+              {formErrors.city && <p className="mt-1 text-xs text-red-600">{formErrors.city}</p>}
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium text-purple-700">Пощенски код</label>
               <input
+                data-field="postalCode"
                 type="text"
-                required
-                autoComplete="postal-code"
+                name="postalCode"
+                autoComplete="shipping postal-code"
                 value={formData.postalCode}
-                onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                className="w-full rounded-lg border border-purple-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={(e) => {
+                  setFormData({ ...formData, postalCode: e.target.value });
+                  setFormErrors((prev) => ({ ...prev, postalCode: undefined }));
+                }}
+                className={`w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${formErrors.postalCode ? "border-red-400 bg-red-50 focus:ring-red-300" : "border-purple-200 focus:ring-purple-500"}`}
               />
+              {formErrors.postalCode && <p className="mt-1 text-xs text-red-600">{formErrors.postalCode}</p>}
             </div>
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-purple-700">Начин на плащане</label>
             <select
+              data-field="paymentMethod"
               value={formData.paymentMethod}
-              onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value as "card" | "paypal" | "cash_on_delivery" })}
-              className="w-full rounded-lg border border-purple-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              onChange={(e) => {
+                setFormData({ ...formData, paymentMethod: e.target.value as "card" | "paypal" | "cash_on_delivery" });
+                setFormErrors((prev) => ({ ...prev, paymentMethod: undefined }));
+              }}
+              className={`w-full rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${formErrors.paymentMethod ? "border-red-400 bg-red-50 focus:ring-red-300" : "border-purple-200 focus:ring-purple-500"}`}
             >
               <option value="cash_on_delivery">Плащане при доставка</option>
               <option value="card">Карта</option>
               <option value="paypal">PayPal</option>
             </select>
+            {formErrors.paymentMethod && <p className="mt-1 text-xs text-red-600">{formErrors.paymentMethod}</p>}
           </div>
 
-          <div className="space-y-3 rounded-xl border border-purple-100 bg-white/70 p-4">
+          <div
+            data-field={formErrors.acceptGdpr ? "acceptGdpr" : formErrors.acceptDeliveryTerms ? "acceptDeliveryTerms" : undefined}
+            className={`space-y-3 rounded-xl border bg-white/70 p-4 ${formErrors.acceptGdpr || formErrors.acceptDeliveryTerms ? "border-red-300" : "border-purple-100"}`}
+          >
             <label className="flex items-start gap-3 text-sm text-purple-800">
               <input
                 type="checkbox"
                 checked={formData.acceptGdpr}
-                onChange={(e) => setFormData({ ...formData, acceptGdpr: e.target.checked })}
+                onChange={(e) => {
+                  setFormData({ ...formData, acceptGdpr: e.target.checked });
+                  setFormErrors((prev) => ({ ...prev, acceptGdpr: undefined }));
+                }}
                 className="mt-1 h-4 w-4 rounded border-purple-300 text-purple-700 focus:ring-purple-500"
               />
               <span>
@@ -417,7 +490,10 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
               <input
                 type="checkbox"
                 checked={formData.acceptDeliveryTerms}
-                onChange={(e) => setFormData({ ...formData, acceptDeliveryTerms: e.target.checked })}
+                onChange={(e) => {
+                  setFormData({ ...formData, acceptDeliveryTerms: e.target.checked });
+                  setFormErrors((prev) => ({ ...prev, acceptDeliveryTerms: undefined }));
+                }}
                 className="mt-1 h-4 w-4 rounded border-purple-300 text-purple-700 focus:ring-purple-500"
               />
               <span>
@@ -427,6 +503,8 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
                 </Link>.
               </span>
             </label>
+            {formErrors.acceptGdpr && <p className="text-xs text-red-600">{formErrors.acceptGdpr}</p>}
+            {formErrors.acceptDeliveryTerms && <p className="text-xs text-red-600">{formErrors.acceptDeliveryTerms}</p>}
           </div>
 
           <div className="border-t border-purple-200 pt-4">
@@ -446,7 +524,7 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
     );
   };
 
-  const OrderResult = () => (
+  const renderOrderResult = () => (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-purple-900">
         {orderResult?.success ? "Поръчката е успешна!" : "Грешка при поръчка"}
@@ -473,9 +551,6 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
       <div className="flex gap-4">
         {orderResult?.success ? (
           <>
-            <button onClick={() => goToStep(1)} className="app-button-soft">
-              Нова поръчка
-            </button>
             <Link href="/shop" className="app-button-neutral">
               Продължи пазаруването
             </Link>
@@ -521,9 +596,9 @@ export default function Cart({ initialUserState: propUserState = initialUserStat
         </div>
       </div>
 
-      {currentStep === 1 && <CartReview />}
-      {currentStep === 2 && <UserInformation />}
-      {currentStep === 3 && <OrderResult />}
+      {currentStep === 1 && renderCartReview()}
+      {currentStep === 2 && renderUserInformation()}
+      {currentStep === 3 && renderOrderResult()}
     </div>
   );
 }
