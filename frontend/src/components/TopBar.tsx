@@ -2,13 +2,31 @@
 
 import Image from 'next/image'
 import logoImg from "../assets/images/logo.png";
-import burgerIcon from "../assets/images/icons/burger.png";
-import searchIcon from "../assets/images/icons/search.png";
-import userIcon from "../assets/images/icons/user.png";
+interface TopBarProps {
+  isVertical?: boolean
+}
 
-export default function TopBar() {
+export default function TopBar({ isVertical = false }: TopBarProps) {
+  if (isVertical) {
+    return (
+      <header className="bg-transparent px-3 pb-3 pt-4">
+        <div className="flex justify-center">
+          <div className="relative h-14 w-16">
+            <Image
+              src={logoImg}
+              alt="Премиум козметика"
+              fill
+              className="object-contain object-top"
+              priority
+            />
+          </div>
+        </div>
+      </header>
+    )
+  }
+
   return (
-    <header className="border-b border-white/20">
+    <header className="bg-transparent">
       <div className="grid grid-cols-3 items-center px-4 py-2">
         <button
           disabled={true}

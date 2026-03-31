@@ -23,7 +23,7 @@ export default function ProductNotFound() {
   }, [router])
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] pt-6 pb-6">
+    <div className="min-h-screen bg-[#f5f7fa] pt-2 pb-6">
       <div className="page-shell">
         <div className="surface-card-tight text-center">
           <div className="mb-4 mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">

@@ -11,7 +11,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   if (!product) return <ProductNotFound />;
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] pt-6 pb-6">
+    <div className="min-h-screen bg-[#f5f7fa] pt-2 pb-6">
       <ProductDetails
         name={product.name}
         imageSrc={product.imageSrc}

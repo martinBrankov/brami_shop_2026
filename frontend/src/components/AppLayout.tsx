@@ -5,6 +5,7 @@ import { useOrientation, hideAddressBar, showAddressBar } from '@/hooks/useOrien
 import TopBar from './TopBar'
 import NavigationMenu from './NavigationMenu'
 import BottomBar from './BottomBar'
+import CookieNotice from './CookieNotice'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -92,33 +93,30 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div id="root" className="min-h-screen bg-[#f5f7fa]">
       {!isLandscapeMobile && (
-        <div className="fixed inset-x-0 top-0 z-40">
-          <div className="page-shell">
-            <div className="surface-card overflow-hidden rounded-t-none rounded-b-xl border-t-0">
-              <TopBar />
-              <NavigationMenu
-                orientation={orientation}
-                isMobile={isMobile}
-                isFullscreen={isFullscreen}
-                onToggleFullscreen={toggleFullscreen}
-              />
-            </div>
-          </div>
+        <div className="fixed inset-x-0 top-0 z-40 border-0 bg-[linear-gradient(180deg,rgba(221,225,229,0.96)_0%,rgba(234,237,240,0.92)_44%,rgba(245,247,249,0.88)_100%)] shadow-[0_10px_24px_rgba(71,85,105,0.12)] backdrop-blur-xl supports-[backdrop-filter]:bg-[linear-gradient(180deg,rgba(221,225,229,0.88)_0%,rgba(234,237,240,0.82)_44%,rgba(245,247,249,0.76)_100%)]">
+          <TopBar />
+          <NavigationMenu
+            orientation={orientation}
+            isMobile={isMobile}
+          />
         </div>
       )}
 
       {isLandscapeMobile && (
-        <NavigationMenu
-          orientation={orientation}
-          isMobile={isMobile}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={toggleFullscreen}
-        />
+        <div className="fixed inset-y-0 left-0 z-40 w-32 border-0 bg-[linear-gradient(180deg,rgba(221,225,229,0.96)_0%,rgba(234,237,240,0.92)_44%,rgba(245,247,249,0.88)_100%)] shadow-[10px_0_24px_rgba(71,85,105,0.12)] backdrop-blur-xl supports-[backdrop-filter]:bg-[linear-gradient(180deg,rgba(221,225,229,0.88)_0%,rgba(234,237,240,0.82)_44%,rgba(245,247,249,0.76)_100%)]">
+          <TopBar isVertical />
+          <NavigationMenu
+            orientation={orientation}
+            isMobile={isMobile}
+          />
+        </div>
       )}
 
-      <main className={`pb-16 pt-32 ${isLandscapeMobile ? 'pr-24 pt-4' : ''}`}>
+      <main className={`${isLandscapeMobile ? 'pl-32 pt-2 pb-16' : 'pt-32 pb-28'}`}>
         {children}
       </main>
+
+      <CookieNotice />
 
       {!isLandscapeMobile && <BottomBar />}
     </div>

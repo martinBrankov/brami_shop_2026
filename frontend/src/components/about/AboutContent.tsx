@@ -5,7 +5,7 @@ import addelaSunny from "../../assets/images/about/addelaSunny.jpg";
 
 export default function AboutContent() {
   return (
-    <section className="page-shell space-y-6 bg-[#f5f7fa] py-6">
+    <section className="page-shell space-y-6 bg-[#f5f7fa] pt-2 pb-6">
       <div className="surface-card space-y-4 p-6 text-purple-900">
         <div>
           <h1 className="text-3xl font-semibold text-purple-900 mb-3">

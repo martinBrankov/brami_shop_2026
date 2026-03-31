@@ -22,7 +22,7 @@ export const brandOptions = [
 
 export function useProductFilters(allProducts: Product[] = products) {
   const [selectedCategories, setSelectedCategories] = useState<ProductCategoryFilter[]>([]);
-  const [selectedBrand, setSelectedBrand] = useState<ProductBrandFilter | null>(null);
+  const [selectedBrands, setSelectedBrands] = useState<ProductBrandFilter[]>([]);
 
   const toggleCategory = (categoryId: "all" | ProductCategoryFilter) => {
     if (categoryId === "all") {
@@ -31,12 +31,28 @@ export function useProductFilters(allProducts: Product[] = products) {
     }
 
     setSelectedCategories(prev =>
-      prev[0] === categoryId ? [] : [categoryId],
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId],
     );
   };
 
   const toggleBrand = (brandId: "all" | ProductBrandFilter) => {
-    setSelectedBrand(brandId === "all" ? null : brandId);
+    if (brandId === "all") {
+      setSelectedBrands([]);
+      return;
+    }
+
+    setSelectedBrands(prev =>
+      prev.includes(brandId)
+        ? prev.filter(id => id !== brandId)
+        : [...prev, brandId],
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedCategories([]);
+    setSelectedBrands([]);
   };
 
   const filteredProducts = useMemo(() => {
@@ -47,16 +63,19 @@ export function useProductFilters(allProducts: Product[] = products) {
           product.category.includes(selectedCategory),
         );
 
-      const brandMatch = selectedBrand === null || product.brand === selectedBrand;
+      const brandMatch =
+        selectedBrands.length === 0 ||
+        selectedBrands.includes(product.brand as ProductBrandFilter);
 
       return categoryMatch && brandMatch;
     });
-  }, [allProducts, selectedBrand, selectedCategories]);
+  }, [allProducts, selectedBrands, selectedCategories]);
 
   return {
     filteredProducts,
-    selectedBrand,
+    selectedBrand: selectedBrands,
     selectedCategories,
+    clearFilters,
     toggleBrand,
     toggleCategory,
   };

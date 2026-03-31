@@ -23,7 +23,7 @@ export default function PopularProducts({
   }
 
   return (
-    <section className="bg-[#f5f7fa] pt-6 pb-2">
+    <section className="bg-[#f5f7fa] pt-2 pb-2">
       <div className="page-shell">
         <div className="surface-card px-4 py-5">
           <h2 className="text-center text-xl font-semibold text-purple-900 mb-4">
@@ -46,7 +46,7 @@ export default function PopularProducts({
                 const ProductContent = (
                   <div
                     className="
-                    w-[40vw] max-w-sm
+                    w-[20vw] max-w-sm
                     bg-white/80 border border-purple-100 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/65
                     rounded-xl
                     overflow-hidden flex flex-col

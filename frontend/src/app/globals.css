@@ -14,7 +14,7 @@ html {
 
 @layer components {
   .page-shell {
-    @apply mx-auto w-full max-w-5xl px-4;
+    @apply mx-auto w-full px-4;
   }
 
   .surface-card,
@@ -53,6 +53,36 @@ html {
 
   .app-icon-button {
     @apply inline-flex items-center justify-center rounded-full bg-purple-200 text-purple-700 transition-colors hover:bg-purple-300;
+  }
+
+  .hero-cta-desktop {
+    width: 400px;
+  }
+
+  .hero-cta-text-mobile {
+    font-size: 12px;
+  }
+
+  @media (max-width: 1300px) {
+    .hero-cta-desktop {
+      width: 200px;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .hero-cta-desktop {
+      width: 140px;
+    }
+  }
+
+  @media (max-width: 375px) {
+    .hero-cta-desktop {
+      width: 120px;
+    }
+
+    .hero-cta-text-mobile {
+      font-size: 10px;
+    }
   }
 }
 

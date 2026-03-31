@@ -17,6 +17,7 @@ export default function ProductsCatalog() {
     filteredProducts,
     selectedBrand,
     selectedCategories,
+    clearFilters,
     toggleBrand,
     toggleCategory,
   } = useProductFilters(products);
@@ -28,53 +29,56 @@ export default function ProductsCatalog() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] pt-6 pb-6">
+    <div className="min-h-screen bg-[#f5f7fa] pt-2 pb-6">
       <div className="page-shell">
-        <ProductFilters
-          selectedCategories={selectedCategories}
-          selectedBrand={selectedBrand}
-          onCategoryToggle={toggleCategory}
-          onBrandToggle={toggleBrand}
-        />
+        <div className="surface-card p-4 md:p-6">
+          <ProductFilters
+            selectedCategories={selectedCategories}
+            selectedBrand={selectedBrand}
+            onClearFilters={clearFilters}
+            onCategoryToggle={toggleCategory}
+            onBrandToggle={toggleBrand}
+          />
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 justify-items-center">
-          {filteredProducts.map(product => (
-            <Link
-              key={product.id}
-              href={`/shop/${product.id}`}
-              className="bg-white/80 border border-purple-100 shadow-sm rounded-xl overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow backdrop-blur-xl supports-[backdrop-filter]:bg-white/65 w-full max-w-[200px]"
-            >
-              <div className="relative w-full aspect-square">
-                <Image
-                  src={product.imageSrc[0]}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-
-              <div className="p-3 flex flex-col gap-1">
-                <div className="text-sm font-medium text-purple-900 min-h-[2.5rem] flex items-start">
-                  {product.name}
+          <div className="grid grid-cols-2 gap-4 justify-items-center sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {filteredProducts.map(product => (
+              <Link
+                key={product.id}
+                href={`/shop/${product.id}`}
+                className="bg-white/80 border border-purple-100 shadow-sm rounded-xl overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow backdrop-blur-xl supports-[backdrop-filter]:bg-white/65 w-full max-w-[200px]"
+              >
+                <div className="relative w-full aspect-square">
+                  <Image
+                    src={product.imageSrc[0]}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
 
-                <p className="text-xs text-purple-700/80 leading-snug line-clamp-2">
-                  {stripHtml(product.description)}
-                </p>
+                <div className="p-3 flex flex-col gap-1">
+                  <div className="text-sm font-medium text-purple-900 min-h-[2.5rem] flex items-start">
+                    {product.name}
+                  </div>
 
-                <div className="text-sm text-purple-700 mt-1">
-                  {product.price}
+                  <p className="text-xs text-purple-700/80 leading-snug line-clamp-2">
+                    {stripHtml(product.description)}
+                  </p>
+
+                  <div className="text-sm text-purple-700 mt-1">
+                    {product.price}
+                  </div>
+
+                  <button
+                    onClick={event => handleBuyNow(product, event)}
+                    className="app-button-primary mt-2 w-full py-2 shadow-sm"
+                  >
+                    Купи
+                  </button>
                 </div>
-
-                <button
-                  onClick={event => handleBuyNow(product, event)}
-                  className="app-button-primary mt-2 w-full py-2 shadow-sm"
-                >
-                  Купи
-                </button>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>
